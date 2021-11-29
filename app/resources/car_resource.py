@@ -125,7 +125,12 @@ class CarListResource:
 
         result = []
         for car in cars:
-            result.append(car.todict())
+            car_d = car.todict()
+            car_d.pop('rental_zone_id')
+            car_d['rental_zone'] = car.rental_zone.todict()
+            car_d['rental_zone'].pop('city_id')
+            car_d['rental_zone']['city'] = car.rental_zone.city.todict()
+            result.append(car_d)
         req.context.result = result
 
     @before(validate_car_data)
@@ -145,7 +150,12 @@ class CarListResource:
             LOG.error("Error occurred while adding rental_zone: %s", ex)
             raise HTTPInternalServerError(title="Error Occurred", description="Team has been notified.")
 
-        req.context.result = car.todict()
+        car_d = car.todict()
+        car_d.pop('rental_zone_id')
+        car_d['rental_zone'] = car.rental_zone.todict()
+        car_d['rental_zone'].pop('city_id')
+        car_d['rental_zone']['city'] = car.rental_zone.city.todict()
+        req.context.result = car_d
 
 
 class CarBookingListResource:
@@ -185,4 +195,7 @@ class CarBookingListResource:
             LOG.error("Error occurred while adding rental_zone: %s", ex)
             raise HTTPInternalServerError(title="Error Occurred", description="Team has been notified.")
 
-        req.context.result = car_b.todict()
+        car_b_data = car_b.todict()
+        car_b_data.pop('car_id')
+        car_b_data['car'] = car_b.car.todict()
+        req.context.result = car_b_data

@@ -2,9 +2,8 @@ import falcon
 from cerberus import Validator
 from falcon import (HTTPNotFound, HTTPBadRequest, before,
                     HTTPUnauthorized, HTTP_200, HTTP_201, HTTPInvalidParam)
-from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy import exists
-from datetime import datetime
+from sqlalchemy.orm import joinedload
 
 from app.utils import errors_to_desc
 from app.models import RentalZone, City
@@ -57,10 +56,13 @@ class RentalZoneListResource:
         city_id = req.get_param_as_int('city_id')
         if not session.query(exists().where(City.id == city_id)).scalar():
             raise HTTPBadRequest(title="Bad Request", description="Please provide valid city_id")
-        rental_zones = session.query(RentalZone).filter(RentalZone.city_id == city_id)
+        rental_zones = session.query(RentalZone).options(joinedload('city')).filter(RentalZone.city_id == city_id)
         result = []
         for rz in rental_zones:
-            result.append(rz.todict())
+            rz_d = rz.todict()
+            rz_d.pop('city_id')
+            rz_d['city'] = rz.city.todict()
+            result.append(rz_d)
 
         req.context.result = result
 
@@ -78,7 +80,10 @@ class RentalZoneListResource:
             LOG.error("Error occurred while adding rental_zone: %s", ex)
             raise falcon.HTTPInternalServerError(title="Error Occurred", description="Team has been notified.")
 
-        req.context.result = rental_zone.todict()
+        rz_d = rental_zone.todict()
+        rz_d.pop('city_id')
+        rz_d['city'] = rental_zone.city.todict()
+        req.context.result = rz_d
 
 
 class RentalZoneResource:
@@ -86,7 +91,10 @@ class RentalZoneResource:
         session = req.context.session
         rental_zone = session.query(RentalZone).get(rz_id)
         if rental_zone:
-            req.context.result = rental_zone.todict()
+            rz_d = rental_zone.todict()
+            rz_d.pop('city_id')
+            rz_d['city'] = rental_zone.city.todict()
+            req.context.result = rz_d.todict()
         else:
             raise HTTPBadRequest(title="Bad Request", description="Please provide valid rental_zone id")
 
@@ -104,5 +112,8 @@ class RentalZoneResource:
             LOG.error("Error occurred while adding rental_zone: %s", ex)
             raise falcon.HTTPInternalServerError(title="Error Occurred", description="Team has been notified.")
 
-        req.context.result = rental_zone.todict()
+        rz_d = rental_zone.todict()
+        rz_d.pop('city_id')
+        rz_d['city'] = rental_zone.city.todict()
+        req.context.result = rz_d
 
