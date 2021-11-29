@@ -13,7 +13,7 @@ class RentalZone(Base):
     city_id = Column(Integer, ForeignKey('city.id'), nullable=False)
     city = relationship(City, backref=backref('rental_zones', uselist=True, cascade='delete,all'))
 
-    @validates('registration_no', )
+    @validates('name',)
     def convert_upper(self, key, value):
         return value.upper()
 

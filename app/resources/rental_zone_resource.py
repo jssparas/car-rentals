@@ -1,7 +1,5 @@
-import falcon
 from cerberus import Validator
-from falcon import (HTTPNotFound, HTTPBadRequest, before,
-                    HTTPUnauthorized, HTTP_200, HTTP_201, HTTPInvalidParam)
+from falcon import HTTPBadRequest, before, HTTPInternalServerError
 from sqlalchemy import exists
 from sqlalchemy.orm import joinedload
 
@@ -27,10 +25,6 @@ def validate_rental_zone_data(req, resp, resource, params):
         }
     }
 
-    error_message = {
-        'name': 'Provide rental zone name',
-        'city_id': 'Invalid city id',
-    }
     # validate input
     try:
         v = Validator(schema)
@@ -47,7 +41,7 @@ def validate_city(req, res, resource, params):
     session = req.context.session
     doc = req.context.doc
     if not session.query(exists().where(City.id == doc.get('city_id'))).scalar():
-        raise falcon.HTTPBadRequest(title="Bad Request", description="Please provide valid city_id")
+        raise HTTPBadRequest(title="Bad Request", description="Please provide valid city_id")
 
 
 class RentalZoneListResource:
@@ -66,8 +60,8 @@ class RentalZoneListResource:
 
         req.context.result = result
 
-    @falcon.before(validate_rental_zone_data)
-    @falcon.before(validate_city)
+    @before(validate_rental_zone_data)
+    @before(validate_city)
     def on_post(self, req, resp):
         session = req.context.session
         doc = req.context.doc
@@ -78,7 +72,7 @@ class RentalZoneListResource:
             session.commit()
         except Exception as ex:
             LOG.error("Error occurred while adding rental_zone: %s", ex)
-            raise falcon.HTTPInternalServerError(title="Error Occurred", description="Team has been notified.")
+            raise HTTPInternalServerError(title="Error Occurred", description="Team has been notified.")
 
         rz_d = rental_zone.todict()
         rz_d.pop('city_id')
@@ -98,8 +92,8 @@ class RentalZoneResource:
         else:
             raise HTTPBadRequest(title="Bad Request", description="Please provide valid rental_zone id")
 
-    @falcon.before(validate_rental_zone_data)
-    @falcon.before(validate_city)
+    @before(validate_rental_zone_data)
+    @before(validate_city)
     def on_patch(self, req, resp, rz_id):
         session = req.context.session
         doc = req.context.doc
@@ -110,7 +104,7 @@ class RentalZoneResource:
             session.commit()
         except Exception as ex:
             LOG.error("Error occurred while adding rental_zone: %s", ex)
-            raise falcon.HTTPInternalServerError(title="Error Occurred", description="Team has been notified.")
+            raise HTTPInternalServerError(title="Error Occurred", description="Team has been notified.")
 
         rz_d = rental_zone.todict()
         rz_d.pop('city_id')

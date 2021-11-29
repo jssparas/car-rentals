@@ -25,7 +25,7 @@ INSERT INTO public.city (id, created_on, name) values (7, '2021-11-23 12:09:42.2
 INSERT INTO public.city (id, created_on, name) values (8, '2021-11-23 12:09:42.269158', 'kanpur');
 
 
-SELECT pg_catalog.setval('public.car_id_seq', 8, true);
+SELECT pg_catalog.setval('public.city_id_seq', 8, true);
 ALTER TABLE rental_zone ADD CONSTRAINT rental_zone_city_id_fkey FOREIGN KEY (city_id) REFERENCES city(id);
 
 END;
