@@ -27,7 +27,7 @@ class CityListResource:
             session.commit()
         except IntegrityError as ie:
             LOG.error("Error occurred while adding city: %s", ie)
-            raise HTTPBadRequest(title="Error Occurred", description="City already exists")
+            raise HTTPBadRequest(title="Bad Request", description="City already exists")
         except Exception as ex:
             LOG.error("Error occurred while adding rental_zone: %s", ex)
             raise HTTPInternalServerError(title="Error Occurred", description="Team has been notified.")

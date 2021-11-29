@@ -117,6 +117,8 @@ class CarListResource:
     def on_get(self, req, resp):
         session = req.context.session
         available_date = req.get_param_as_date('available_date')
+        if available_date < date.today():
+            raise HTTPBadRequest(title="Bad Request", description="Available date is less than today")
         # LOG.info(type(available_date))
         city_id = req.get_param_as_int('city_id')
         cars = session.query(Car). \
@@ -151,7 +153,7 @@ class CarListResource:
             session.commit()
         except IntegrityError as ie:
             LOG.error("Error occurred while adding car: %s", ie)
-            raise HTTPBadRequest(title="Error Occurred", description="Registration number already exists")
+            raise HTTPBadRequest(title="Bad Request", description="Registration number already exists")
         except Exception as ex:
             LOG.error("Error occurred while adding rental_zone: %s", ex)
             raise HTTPInternalServerError(title="Error Occurred", description="Team has been notified.")
@@ -204,7 +206,7 @@ class CarBookingListResource:
             session.commit()
         except IntegrityError as ie:
             LOG.error("Error occurred while adding car: %s", ie)
-            raise HTTPBadRequest(title="Error Occurred", description="Model number already exists")
+            raise HTTPBadRequest(title="Bad Request", description="Model number already exists")
         except Exception as ex:
             LOG.error("Error occurred while adding rental_zone: %s", ex)
             raise HTTPInternalServerError(title="Error Occurred", description="Team has been notified.")

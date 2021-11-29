@@ -2,6 +2,7 @@ from cerberus import Validator
 from falcon import HTTPBadRequest, before, HTTPInternalServerError
 from sqlalchemy import exists
 from sqlalchemy.orm import joinedload
+from sqlalchemy.exc import IntegrityError
 
 from app.utils import errors_to_desc
 from app.models import RentalZone, City
@@ -70,6 +71,9 @@ class RentalZoneListResource:
             rental_zone = RentalZone.add_rental_zone(**doc)
             session.add(rental_zone)
             session.commit()
+        except IntegrityError as ie:
+            LOG.error("Error occurred while adding rental_zone: %s", ie)
+            raise HTTPBadRequest(title="Error Occurred", description="Rental zone with this name already exists")
         except Exception as ex:
             LOG.error("Error occurred while adding rental_zone: %s", ex)
             raise HTTPInternalServerError(title="Error Occurred", description="Team has been notified.")
