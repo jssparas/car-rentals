@@ -113,12 +113,22 @@ def validate_against_exiting_bookings(req, resp, resource, params):
         raise HTTPBadRequest(title="Bad Request", description="Booking already done for this period.")
 
 
+def validate_car_search_params(req, resp, resource, params):
+    session = req.context.session
+    doc = req.context.doc
+    available_date = req.get_param_as_date('available_date')
+    if available_date < date.today():
+        raise HTTPBadRequest(title="Bad Request", description="Available date is less than today")
+    city_id = doc.get('city_id')
+    if session.query(exists().where(City.id == city_id)).scalar():
+        raise HTTPBadRequest(title="Bad Request", description="Invalid city id.")
+
+
 class CarListResource:
+    @before(validate_car_search_params)
     def on_get(self, req, resp):
         session = req.context.session
         available_date = req.get_param_as_date('available_date')
-        if available_date < date.today():
-            raise HTTPBadRequest(title="Bad Request", description="Available date is less than today")
         # LOG.info(type(available_date))
         city_id = req.get_param_as_int('city_id')
         cars = session.query(Car). \
