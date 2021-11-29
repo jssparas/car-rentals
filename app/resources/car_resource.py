@@ -116,18 +116,22 @@ def validate_against_exiting_bookings(req, resp, resource, params):
 class CarListResource:
     def on_get(self, req, resp):
         session = req.context.session
-        # TODO: add available filter
         available_date = req.get_param_as_date('available_date')
+        # LOG.info(type(available_date))
         city_id = req.get_param_as_int('city_id')
-        cars = session.query(Car).\
-            options(joinedload('rental_zone').joinedload('city')).\
-            join(RentalZone, RentalZone.id == Car.rental_zone_id).\
-            join(City, City.id == RentalZone.city_id).\
+        cars = session.query(Car). \
+            options(joinedload('rental_zone').joinedload('city')). \
+            join(RentalZone, RentalZone.id == Car.rental_zone_id). \
+            join(City, City.id == RentalZone.city_id). \
             filter(City.id == city_id)
+        if available_date:
+            cars = cars.filter(Car.availability_for_60_days.any(available_date))
 
         result = []
         for car in cars:
             car_d = car.todict()
+            if car_d['availability_for_60_days']:
+                car_d['availability_for_60_days'].sort()
             car_d.pop('rental_zone_id')
             car_d['rental_zone'] = car.rental_zone.todict()
             car_d['rental_zone'].pop('city_id')
@@ -147,7 +151,7 @@ class CarListResource:
             session.commit()
         except IntegrityError as ie:
             LOG.error("Error occurred while adding car: %s", ie)
-            raise HTTPBadRequest(title="Error Occurred", description="Model number already exists")
+            raise HTTPBadRequest(title="Error Occurred", description="Registration number already exists")
         except Exception as ex:
             LOG.error("Error occurred while adding rental_zone: %s", ex)
             raise HTTPInternalServerError(title="Error Occurred", description="Team has been notified.")
