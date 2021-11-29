@@ -62,8 +62,10 @@ def validate_rental_zone(req, res, resource, params):
 def validate_car(req, res, resource, params):
     session = req.context.session
     doc = req.context.doc
-    if not session.query(exists().where(Car.id == doc.get('car_id'))).scalar():
+    car = session.query(Car).get(doc.get('car_id'))
+    if not car:
         raise HTTPBadRequest(title="Bad Request", description="Please provide valid car_id")
+    req.context.car = car
 
 
 def validate_carbooking_data(req, resp, resource, params):
@@ -173,7 +175,9 @@ class CarBookingListResource:
         for car_b in car_bookings:
             car_b_data = car_b.todict()
             car_b_data.pop('car_id')
-            car_b_data['car'] = car_b.car.todict()
+            car_d = car_b.car.todict()
+            car_d.pop('availability_for_60_days')
+            car_b_data['car'] = car_d
             result.append(car_b_data)
         req.context.result = result
 
@@ -183,10 +187,16 @@ class CarBookingListResource:
     def on_post(self, req, resp):
         session = req.context.session
         doc = req.context.doc
+        car = req.context.car
 
         try:
             car_b = CarBooking.add_car_booking(**doc)
             session.add(car_b)
+
+            from_date = doc.get('from_date')
+            to_date = doc.get('to_date')
+            booked_dates = set([from_date + timedelta(days=x) for x in range((to_date - from_date).days + 1)])
+            car.availability_for_60_days = list(set(car.availability_for_60_days) - booked_dates)
             session.commit()
         except IntegrityError as ie:
             LOG.error("Error occurred while adding car: %s", ie)
@@ -195,7 +205,4 @@ class CarBookingListResource:
             LOG.error("Error occurred while adding rental_zone: %s", ex)
             raise HTTPInternalServerError(title="Error Occurred", description="Team has been notified.")
 
-        car_b_data = car_b.todict()
-        car_b_data.pop('car_id')
-        car_b_data['car'] = car_b.car.todict()
-        req.context.result = car_b_data
+        req.context.result = car_b.todict()
