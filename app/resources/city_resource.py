@@ -1,4 +1,4 @@
-from falcon import HTTPInternalServerError, HTTPBadRequest
+from falcon import HTTPInternalServerError, HTTPBadRequest, HTTP_201
 from sqlalchemy.exc import IntegrityError
 
 from app.models import City
@@ -33,3 +33,4 @@ class CityListResource:
             raise HTTPInternalServerError(title="Error Occurred", description="Team has been notified.")
 
         req.context.result = city.todict()
+        resp.status_code = HTTP_201

@@ -8,7 +8,7 @@ from sqlalchemy.orm import sessionmaker, scoped_session
 from app.models import Base
 from app.config import DATABASE_URL
 from app.database import get_engine
-# from app.utils.db import seed
+from app.utils import seed
 from app import log
 LOG = log.get_logger()
 
