@@ -47,4 +47,6 @@ To run unit tests - test.env needs to be present in the repo
 1. `APP_ENV=TEST pytest`
 
 
-   
+####NOTES:
+1. Data is only seeded for cities. For any other data, APIs are present like adding rental-zone, cars, etc
+2. For API specifications refer `Car Rental.postman_collection.json`
