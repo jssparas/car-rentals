@@ -26,6 +26,11 @@ Prerequisites -
    1. create 2 database (`car-db`, `test-db`) and save the connection string in these files
    `DATABASE_URL`
    `REDIS_URL`
+   ```
+   [Sample]
+   DATABASE_URL=postgresql://paras:postgres@localhost:5432/car-db
+   REDIS_URL=redis://localhost:6379/1
+   ```
 4. Create, activate virtualenv, install requirements
    1. `virtualenv -p /path/to/python_bin venv`
    2. `source venv/bin/activate`
