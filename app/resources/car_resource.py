@@ -1,4 +1,4 @@
-from falcon import HTTPBadRequest, before, HTTPInternalServerError
+from falcon import HTTPBadRequest, before, HTTPInternalServerError, HTTP_201
 from sqlalchemy import exists, or_, and_
 from sqlalchemy.orm import joinedload
 from sqlalchemy.exc import IntegrityError
@@ -115,12 +115,11 @@ def validate_against_exiting_bookings(req, resp, resource, params):
 
 def validate_car_search_params(req, resp, resource, params):
     session = req.context.session
-    doc = req.context.doc
     available_date = req.get_param_as_date('available_date')
-    if available_date < date.today():
+    if available_date and available_date < date.today():
         raise HTTPBadRequest(title="Bad Request", description="Available date is less than today")
-    city_id = doc.get('city_id')
-    if session.query(exists().where(City.id == city_id)).scalar():
+    city_id = req.get_param_as_int('city_id')
+    if not session.query(exists().where(City.id == city_id)).scalar():
         raise HTTPBadRequest(title="Bad Request", description="Invalid city id.")
 
 
@@ -174,6 +173,7 @@ class CarListResource:
         car_d['rental_zone'].pop('city_id')
         car_d['rental_zone']['city'] = car.rental_zone.city.todict()
         req.context.result = car_d
+        resp.status = HTTP_201
 
 
 class CarBookingListResource:
@@ -222,3 +222,4 @@ class CarBookingListResource:
             raise HTTPInternalServerError(title="Error Occurred", description="Team has been notified.")
 
         req.context.result = car_b.todict()
+        resp.status = HTTP_201
