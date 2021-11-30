@@ -67,17 +67,48 @@ def test_search_car_after_booking(client, db):
     car1_id, car2_id = setup_car_data(client)
 
     # book a car
-    book_car(client, car1_id, "2021-12-12", "2021-12-13")
-    # search in a city on available date
-    url = '/cars?city_id=1&available_date=2021-12-12'
+    from_date_str = (date.today() + timedelta(days=4)).strftime("%Y-%m-%d")
+    to_date_str = (date.today() + timedelta(days=5)).strftime("%Y-%m-%d")
+    book_car(client, car1_id, from_date_str, to_date_str)
+
+    # search in a city on booked dates
+    url = f'/cars?city_id=1&available_date={from_date_str}'
     response = client.simulate_get(url)
     assert len(response.json) == 1
 
-    url = '/cars?city_id=1&available_date=2021-12-13'
+    url = f'/cars?city_id=1&available_date={to_date_str}'
     response = client.simulate_get(url)
     assert len(response.json) == 1
 
     # try searching on some other date 2021-12-13
-    url = '/cars?city_id=1&available_date=2021-12-14'
+    url = f'/cars?city_id=1&available_date={(date.today() + timedelta(days=6)).strftime("%Y-%m-%d")}'
     response = client.simulate_get(url)
     assert len(response.json) == 2
+
+
+def test_car_booking(client, db):
+    payload = {
+        "name": "creta",
+        "rental_zone_id": 1,
+        "registration_no": "R1"
+    }
+    car_resp = add_car(client, payload)
+    car_id = car_resp.json.get('id')
+    from_date_str = (date.today() + timedelta(days=4)).strftime("%Y-%m-%d")
+    to_date_str = (date.today() + timedelta(days=5)).strftime("%Y-%m-%d")
+    book_resp = book_car(client, car_id, from_date_str, to_date_str)
+    assert book_resp.status_code == 201
+    assert book_resp.json.get('from_date') == from_date_str
+    assert book_resp.json.get('to_date') == to_date_str
+
+    # try booking the same car on booked dates
+    book_resp = book_car(client, car_id, from_date_str, from_date_str)
+    # print(book_resp.json)
+    assert book_resp.status_code == 400
+    assert "Booking already done for this period" in book_resp.json.get('description')
+
+    # try booking invalid car
+    book_resp = book_car(client, 10, from_date_str, from_date_str)
+    # print(book_resp.json)
+    assert book_resp.status_code == 400
+    assert "Please provide valid car_id" in book_resp.json.get('description')
