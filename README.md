@@ -8,6 +8,8 @@ This repo contains APIs for following flows:
 4. Search for cars in a city on any date
 5. Book a car for rent on any of the available dates upto next 60 days
 
+####Note: API specifications are present in the json file (shared on email)
+
 
 Prerequisites - 
 1. Postgres
@@ -18,8 +20,26 @@ Prerequisites -
 
 ## Installation Steps
 1. Clone the repo
-2. Creeate .env file and test.env files with following lines
-    `DATABASE_URL=postgresql://paras:postgres@localhost:5432/<db-name>`
-    `REDIS_URL=redis://localhost:6379/1`
-  Note: db-name should be different for both files
-3. 
+2. Move to the repo
+   1. `cd car-rental`
+3. Create .env and test.env files
+   1. create 2 database (`car-db`, `test-db`) and save the connection string in these files
+   `DATABASE_URL`
+   `REDIS_URL`
+4. Create, activate virtualenv, install requirements
+   1. `virtualenv -p /path/to/python_bin venv`
+   2. `source venv/bin/activate`
+   3. `pip install requirements.txt`
+5. Migrate db_schema, pre-seed cities
+   1. `python -m app.db_migration`
+   2. `psql -d car-db < app/database/city.sql`
+6. Start the API, CELERY Worker and Beat
+   1. `honcho start web worker cron`
+
+
+## Run tests
+To run unit tests - test.env needs to be present in the repo
+1. `APP_ENV=TEST pytest`
+
+
+   
