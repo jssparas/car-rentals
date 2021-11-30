@@ -20,7 +20,10 @@ def test_add_city(client, db):
         "name": "wuhan"
     }
     response = client.simulate_post(url, headers=constants.APP_HEADERS, body=json.dumps(payload))
-
-    print(response.json)
     assert response.status_code == 201
-    assert response.get('name') == 'wuhan'
+    assert response.json.get('name') == 'wuhan'
+
+    # test duplicate city addition
+    response = client.simulate_post(url, headers=constants.APP_HEADERS, body=json.dumps(payload))
+    assert response.status_code == 400
+    assert "City already exists" in response.json.get('description')

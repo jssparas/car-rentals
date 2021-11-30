@@ -1,5 +1,5 @@
 from cerberus import Validator
-from falcon import HTTPBadRequest, before, HTTPInternalServerError
+from falcon import HTTPBadRequest, before, HTTPInternalServerError, HTTP_201
 from sqlalchemy import exists
 from sqlalchemy.orm import joinedload
 from sqlalchemy.exc import IntegrityError
@@ -82,6 +82,7 @@ class RentalZoneListResource:
         rz_d.pop('city_id')
         rz_d['city'] = rental_zone.city.todict()
         req.context.result = rz_d
+        resp.status = HTTP_201
 
 
 class RentalZoneResource:

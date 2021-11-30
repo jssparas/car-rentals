@@ -29,12 +29,6 @@ def engine():
     yield engine
 
 
-# @pytest.fixture(scope="module")
-# def connection(engine):
-#     with engine.connect() as conn:
-#         yield conn
-
-
 @pytest.fixture(scope='function', autouse=True)
 def db(engine):
     """ DB instance """

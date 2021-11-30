@@ -35,6 +35,9 @@ def populate_testdb(engine, csv_folder="tests"):
         csv_file = filename.as_posix()
         table_name = filename.stem
         import_csv(connection, csv_file, table_name)
+
+    connection.cursor().execute("select setval('city_id_seq', 2, true);")
+    connection.cursor().execute("select setval('rental_zone_id_seq', 4, true);")
     connection.commit()
     connection.cursor().execute("SET session_replication_role = 'origin';")
 

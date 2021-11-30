@@ -33,4 +33,4 @@ class CityListResource:
             raise HTTPInternalServerError(title="Error Occurred", description="Team has been notified.")
 
         req.context.result = city.todict()
-        resp.status_code = HTTP_201
+        resp.status = HTTP_201
