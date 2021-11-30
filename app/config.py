@@ -13,3 +13,4 @@ env_file = find_dotenv(env_file)
 load_dotenv(env_file)
 
 DATABASE_URL = env.get('DATABASE_URL')
+REDIS_URL = env.get('REDIS_URL')

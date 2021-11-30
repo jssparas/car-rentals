@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy import create_engine
+import redis
 
 from app.models import Base
 from app import config
@@ -33,4 +34,4 @@ def init_session():
 
 
 # redis session
-# rdb = redis.Redis.from_url(config.REDIS_URL)
+rdb = redis.Redis.from_url(config.REDIS_URL)

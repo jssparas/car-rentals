@@ -2,6 +2,21 @@ from pathlib import Path
 from app import log
 
 
+def chunks(l, chunk_size):
+    """
+    Yield successive n-sized chunks from l which is a generator
+    """
+    result = []
+    for elem in l:
+        if len(result) < chunk_size:
+            result.append(elem)
+        else:
+            yield result
+            result = [elem]
+    yield result
+    result = []
+
+
 def errors_to_desc(errors):
     msg = []
 
