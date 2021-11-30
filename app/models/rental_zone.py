@@ -1,9 +1,7 @@
-from app.models import Base, City
-from sqlalchemy import (
-    Column, Integer, String, DateTime, Date, Boolean,
-    func, event, BigInteger, exists, and_, ForeignKey, or_
-)
+from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship, backref, validates
+
+from app.models import Base, City
 
 
 class RentalZone(Base):

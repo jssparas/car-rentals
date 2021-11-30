@@ -1,4 +1,5 @@
 import logging
+
 import sqlalchemy.orm.scoping as scoping
 from sqlalchemy.exc import SQLAlchemyError
 from falcon import HTTPInternalServerError

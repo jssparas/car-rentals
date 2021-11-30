@@ -1,7 +1,9 @@
 from datetime import date, timedelta
+
 from sqlalchemy import Column, String, Integer, ForeignKey, Date
 from sqlalchemy.orm import relationship, backref, validates
 from sqlalchemy.dialects.postgresql import ARRAY
+
 from app.models import Base, RentalZone
 
 

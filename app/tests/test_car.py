@@ -1,7 +1,5 @@
-import json
 from datetime import date, timedelta
 
-from app.tests import constants
 from app.tests.helpers import add_car, setup_car_data, book_car
 from app.models import Car
 

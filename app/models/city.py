@@ -1,6 +1,7 @@
-from app.models import Base
 from sqlalchemy import Column, String
 from sqlalchemy.orm import validates
+
+from app.models import Base
 
 
 class City(Base):

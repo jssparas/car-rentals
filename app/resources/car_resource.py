@@ -1,12 +1,14 @@
+from datetime import date, timedelta
+
 from falcon import HTTPBadRequest, before, HTTPInternalServerError, HTTP_201
 from sqlalchemy import exists, or_, and_
 from sqlalchemy.orm import joinedload
 from sqlalchemy.exc import IntegrityError
 from cerberus import Validator
+
 from app.models import Car, RentalZone, City,CarBooking
 from app.log import get_logger
 from app.utils import errors_to_desc
-from datetime import date, timedelta
 
 LOG = get_logger()
 
